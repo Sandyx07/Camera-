@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Access Camera</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f4f4f4;
+    }
+    video {
+      width: 100%;
+      max-width: 600px;
+      border: 2px solid #ccc;
+      border-radius: 10px;
+    }
+    .error-message {
+      color: red;
+      font-size: 18px;
+      font-weight: bold;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Error message will be displayed here -->
+  <div id="error-message" class="error-message"></div>
+  
+  <!-- Video element to display the camera stream -->
+  <video id="video" autoplay playsinline></video>
+
+  <!-- JavaScript code goes here -->
+  <script>
+    // Function to handle the camera stream
+    function startCamera() {
+      const videoElement = document.getElementById('video');
+      const errorMessageElement = document.getElementById('error-message');
+
+      // Check if the browser supports getUserMedia
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        errorMessageElement.textContent = 'Your browser does not support camera access.';
+        return;
+      }
+
+      // Constraints for accessing the camera
+      const constraints = {
+        video: {
+          facingMode: 'environment', // 'environment' for back camera (on mobile)
+          width: { ideal: 1280 }, // Ideal width of the camera stream
+          height: { ideal: 720 }  // Ideal height of the camera stream
+        }
+      };
+
+      // Try to get the user media (camera stream)
+      navigator.mediaDevices.getUserMedia(constraints)
+        .then((stream) => {
+          // If successful, set the video stream
+          videoElement.srcObject = stream;
+          videoElement.style.display = 'block'; // Show the video element
+          errorMessageElement.textContent = ''; // Clear any previous error message
+        })
+        .catch((error) => {
+          // Handle different types of errors
+          console.error('Error accessing camera:', error);
+          if (error.name === 'NotFoundError') {
+            errorMessageElement.textContent = 'No camera found on your device.';
+          } else if (error.name === 'NotAllowedError') {
+            errorMessageElement.textContent = 'Permission to access the camera was denied.';
+          } else {
+            errorMessageElement.textContent = 'Error accessing the camera. Please try again.';
+          }
+        });
+    }
+
+    // Start the camera as soon as the page loads
+    window.onload = startCamera;
+
+  </script>
+
+</body>
+</html>
